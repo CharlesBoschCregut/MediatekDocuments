@@ -66,6 +66,33 @@
     <Compile Include="manager\ApiRest.cs" />
     <Compile Include="controller\FrmMediatekController.cs" />
     <Compile Include="dal\Access.cs" />
+    <Compile Include="model\Commande.cs" />
+    <Compile Include="model\CommandeDocument.cs" />
+    <Compile Include="model\Suivi.cs" />
+    <Compile Include="view\Confirm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="view\Confirm.Designer.cs">
+      <DependentUpon>Confirm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="view\FormAjoutRevue.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="view\FormAjoutRevue.Designer.cs">
+      <DependentUpon>FormAjoutRevue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="view\FormAjoutDvd.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="view\FormAjoutDvd.Designer.cs">
+      <DependentUpon>FormAjoutDvd.cs</DependentUpon>
+    </Compile>
+    <Compile Include="view\FormAjoutLivre.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="view\FormAjoutLivre.Designer.cs">
+      <DependentUpon>FormAjoutLivre.cs</DependentUpon>
+    </Compile>
     <Compile Include="view\FrmMediatek.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,8 +121,20 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="view\Confirm.resx">
+      <DependentUpon>Confirm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="view\FormAjoutRevue.resx">
+      <DependentUpon>FormAjoutRevue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="view\FormAjoutLivre.resx">
+      <DependentUpon>FormAjoutLivre.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="view\FrmMediatek.resx">
       <DependentUpon>FrmMediatek.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="view\FormAjoutDvd.resx">
+      <DependentUpon>FormAjoutDvd.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

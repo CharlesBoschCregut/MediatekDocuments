@@ -63,6 +63,7 @@ namespace MediaTekDocuments.manager
         public JObject RecupDistant(string methode, string message)
         {
             // envoi du message et attente de la réponse
+            Console.WriteLine(message);
             switch (methode)
             {
                 case "GET":
@@ -82,6 +83,12 @@ namespace MediaTekDocuments.manager
                     return new JObject();
             }
             // récupération de l'information retournée par l'api
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                Console.WriteLine(httpResponse.StatusCode);
+                Console.WriteLine(httpResponse);
+                Console.WriteLine(httpResponse.RequestMessage);
+            }
             return httpResponse.Content.ReadAsAsync<JObject>().Result;
         }
 

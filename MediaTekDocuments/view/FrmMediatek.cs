@@ -6,6 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
+using System.Drawing.Printing;
+using System.Data;
+using System.Linq.Expressions;
+using System.ComponentModel.Design;
 
 namespace MediaTekDocuments.view
 
@@ -58,6 +63,11 @@ namespace MediaTekDocuments.view
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void TabLivres_Enter(object sender, EventArgs e)
+        {
+            RechargerLivres();
+        }
+
+        public void RechargerLivres()
         {
             lesLivres = controller.GetAllLivres();
             RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxLivresGenres);
@@ -254,6 +264,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void DgvLivresListe_SelectionChanged(object sender, EventArgs e)
         {
+            ToggleEditionLivre(false);
             if (dgvLivresListe.CurrentCell != null)
             {
                 try
@@ -374,11 +385,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void tabDvd_Enter(object sender, EventArgs e)
         {
-            lesDvd = controller.GetAllDvd();
-            RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxDvdGenres);
-            RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxDvdPublics);
-            RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxDvdRayons);
-            RemplirDvdListeComplete();
+            RechargerDvd();
         }
 
         /// <summary>
@@ -470,7 +477,7 @@ namespace MediaTekDocuments.view
             txbDvdRealisateur.Text = dvd.Realisateur;
             txbDvdSynopsis.Text = dvd.Synopsis;
             txbDvdImage.Text = dvd.Image;
-            txbDvdDuree.Text = dvd.Duree.ToString();
+            txbDvdDuree.Value = dvd.Duree;
             txbDvdNumero.Text = dvd.Id;
             txbDvdGenre.Text = dvd.Genre;
             txbDvdPublic.Text = dvd.Public;
@@ -569,6 +576,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void dgvDvdListe_SelectionChanged(object sender, EventArgs e)
         {
+            ToggleEditionDvd(false);
             if (dgvDvdListe.CurrentCell != null)
             {
                 try
@@ -689,11 +697,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void tabRevues_Enter(object sender, EventArgs e)
         {
-            lesRevues = controller.GetAllRevues();
-            RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxRevuesGenres);
-            RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxRevuesPublics);
-            RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxRevuesRayons);
-            RemplirRevuesListeComplete();
+            RechargerRevues();
         }
 
         /// <summary>
@@ -789,6 +793,7 @@ namespace MediaTekDocuments.view
             txbRevuesPublic.Text = revue.Public;
             txbRevuesRayon.Text = revue.Rayon;
             txbRevuesTitre.Text = revue.Titre;
+            txbRevuesDMAD.Value = revue.DelaiMiseADispo;
             string image = revue.Image;
             try
             {
@@ -881,6 +886,7 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void dgvRevuesListe_SelectionChanged(object sender, EventArgs e)
         {
+            ToggleEditionRevue(false);
             if (dgvRevuesListe.CurrentCell != null)
             {
                 try
@@ -1155,7 +1161,7 @@ namespace MediaTekDocuments.view
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnReceptionExemplaireValider_Click(object sender, EventArgs e)
+        private void btnReceptionExemplairevaliderLivre_Click(object sender, EventArgs e)
         {
             if (!txbReceptionExemplaireNumero.Text.Equals(""))
             {
@@ -1239,5 +1245,779 @@ namespace MediaTekDocuments.view
             }
         }
         #endregion
+
+        #region Gestion Livre
+        private void ajouterLivre_Click(object sender, EventArgs e)
+        {
+            List<BindingSource> data = new List<BindingSource>
+            {
+                bdgGenres, 
+                bdgPublics, 
+                bdgRayons
+            };
+            FormAjoutLivre f = new FormAjoutLivre(data);
+            f.Show();
+        }
+
+        private void supprimerLivre_Click(object sender, EventArgs e)
+        {
+            string id = txbLivresNumero.Text;
+            //check si exemplaire ou commande
+            if (controller.PeutSuppr("commande", id) && controller.PeutSuppr("exemplaire", id))
+            {
+                Confirm f = new Confirm("Êtes-vous sûr de vouloir supprimer " + id, "livre", id, controller.Suppr);
+                f.Show();
+            }
+            else
+            {
+                Confirm f = new Confirm("Impossible de supprimer : \n" + txbLivresTitre.Text + "\n Il y'a encore une commande ou \n un exmplaire rattaché");
+                f.Show();
+            }
+        }
+
+        private void editerLivre_Click(object sender, EventArgs e)
+        {
+            cbxEditRayonLivre.DataSource = bdgRayons.DataSource;
+            cbxEditRayonLivre.DisplayMember = "Libelle";
+            cbxEditRayonLivre.ValueMember = "Id";
+            cbxEditRayonLivre.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbxEditGenreLivre.FlatStyle = FlatStyle.Flat;
+
+            cbxEditGenreLivre.DataSource = bdgGenres.DataSource;
+            cbxEditGenreLivre.DisplayMember = "Libelle";
+            cbxEditGenreLivre.ValueMember = "Id";
+            cbxEditGenreLivre.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            cbxEditPublicLivre.DataSource = bdgPublics.DataSource;
+            cbxEditPublicLivre.DisplayMember = "Libelle";
+            cbxEditPublicLivre.ValueMember = "Id";
+            cbxEditPublicLivre.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            ToggleEditionLivre(true);
+        }
+
+        private void validerLivre_Click(object sender, EventArgs e)
+        {
+            Document document = new Document(
+                txbLivresNumero.Text,
+                txbLivresTitre.Text,
+                txbLivresImage.Text,
+                cbxEditGenreLivre.SelectedValue.ToString(),
+                "LeGenre",
+                cbxEditPublicLivre.SelectedValue.ToString(),
+                "Lepublic",
+                cbxEditRayonLivre.SelectedValue.ToString(),
+                "Lerayon"
+
+            );
+            Livre livre = new Livre(document.Id, document.Titre, document.Image, txbLivresIsbn.Text, txbLivresAuteur.Text, txbLivresCollection.Text, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon);
+            if (controller.EditerLivre(livre))
+            {
+                if (controller.EditerDocument(document))
+                {
+                    RechargerLivres();
+                    ToggleEditionLivre(false);
+                }
+            }
+        }
+
+        private void annulerLivre_Click(object sender, EventArgs e)
+        {
+            ToggleEditionLivre(false);
+        }
+
+        private void refreshLivres_Click(object sender, EventArgs e)
+        {
+            RechargerLivres();
+        }
+
+        private void ToggleEditionLivre(bool status)
+        {
+            if (status)
+            {
+                //annule les changements d'interface
+                grpLivresInfos.BackColor = Color.AliceBlue;
+                cbxEditRayonLivre.Visible = true;
+                cbxEditRayonLivre.Enabled = true;
+                cbxEditGenreLivre.Visible = true;
+                cbxEditGenreLivre.Enabled = true;
+                cbxEditPublicLivre.Visible = true;
+                cbxEditPublicLivre.Enabled = true;
+
+                supprimerLivre.Enabled = false;
+                supprimerLivre.Visible = false;
+                validerLivre.Enabled = true;
+                validerLivre.Visible = true;
+                annulerLivre.Enabled = true;
+                annulerLivre.Visible = true;
+
+                txbLivresTitre.BackColor = Color.White;
+                txbLivresTitre.ReadOnly = false;
+
+                txbLivresAuteur.BackColor = Color.White;
+                txbLivresAuteur.ReadOnly = false;
+
+                txbLivresCollection.BackColor = Color.White;
+                txbLivresCollection.ReadOnly = false;
+
+                txbLivresImage.BackColor = Color.White;
+                txbLivresImage.ReadOnly = false;
+
+                txbLivresIsbn.BackColor = Color.White;
+                txbLivresIsbn.ReadOnly = false;
+
+                var value = cbxEditGenreLivre.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbLivresGenre.Text);
+                if (value != null)
+                {
+                    cbxEditGenreLivre.SelectedItem = value;
+                }
+
+                value = cbxEditRayonLivre.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbLivresRayon.Text);
+                if (value != null)
+                {
+                    cbxEditRayonLivre.SelectedItem = value;
+                }
+
+                value = cbxEditPublicLivre.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbLivresPublic.Text);
+                if (value != null)
+                {
+                    cbxEditPublicLivre.SelectedItem = value;
+                }
+            } 
+            else 
+            {
+                //annule les changements d'interface
+                grpLivresInfos.BackColor = Color.White;
+                cbxEditRayonLivre.Visible = false;
+                cbxEditRayonLivre.Enabled = false;
+                cbxEditGenreLivre.Visible = false;
+                cbxEditGenreLivre.Enabled = false;
+                cbxEditPublicLivre.Visible = false;
+                cbxEditPublicLivre.Enabled = false;
+
+                supprimerLivre.Enabled = true;
+                supprimerLivre.Visible = true;
+                validerLivre.Enabled = false;
+                validerLivre.Visible = false;
+                annulerLivre.Enabled = false;
+                annulerLivre.Visible = false;
+
+                txbLivresTitre.BackColor = txbLivresNumero.BackColor;
+                txbLivresTitre.ReadOnly = true;
+
+                txbLivresAuteur.BackColor = txbLivresNumero.BackColor;
+                txbLivresAuteur.ReadOnly = true;
+
+                txbLivresCollection.BackColor = txbLivresNumero.BackColor;
+                txbLivresCollection.ReadOnly = true;
+
+                txbLivresImage.BackColor = txbLivresNumero.BackColor;
+                txbLivresImage.ReadOnly = true;
+
+                txbLivresIsbn.BackColor = txbLivresNumero.BackColor;
+                txbLivresIsbn.ReadOnly = true;
+
+                VideLivresZones();
+                Livre livre = (Livre)bdgLivresListe.List[bdgLivresListe.Position];
+                AfficheLivresInfos(livre);
+
+            }
+        }
+
+        public bool AjouterLivre(List<string> data)
+        {
+            Document document = new Document(data[7], data[0], "leimage", data[1], "LeGenre", data[2], "Lepublic", data[3], "Lerayon");
+            Livre livre = new Livre(document.Id, document.Titre, document.Image, data[4], data[5], data[6], document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon);
+            if (controller.CreerDocument(document))
+            {
+                if (controller.CreerLivreDvd(livre))
+                {
+                    if (controller.CreerLivre(livre))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region Gestion Dvd
+        private void ajouterDvd_Click(object sender, EventArgs e)
+        {
+            List<BindingSource> data = new List<BindingSource>
+            {
+                bdgGenres,
+                bdgPublics,
+                bdgRayons
+            };
+            FormAjoutDvd f = new FormAjoutDvd(data);
+            f.Show();
+        }
+
+        private void RechargerDvd()
+        {
+            lesDvd = controller.GetAllDvd();
+            RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxDvdGenres);
+            RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxDvdPublics);
+            RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxDvdRayons);
+            RemplirDvdListeComplete();
+        }
+
+        private void refreshDvd_Click(object sender, EventArgs e)
+        {
+            RechargerDvd();
+        }
+
+        private void editerDvd_Click(object sender, EventArgs e)
+        {
+            cbxEditRayonDvd.DataSource = bdgRayons.DataSource;
+            cbxEditRayonDvd.DisplayMember = "Libelle";
+            cbxEditRayonDvd.ValueMember = "Id";
+
+            cbxEditGenreDvd.DataSource = bdgGenres.DataSource;
+            cbxEditGenreDvd.DisplayMember = "Libelle";
+            cbxEditGenreDvd.ValueMember = "Id";
+
+            cbxEditPublicDvd.DataSource = bdgPublics.DataSource;
+            cbxEditPublicDvd.DisplayMember = "Libelle";
+            cbxEditPublicDvd.ValueMember = "Id";
+
+            ToggleEditionDvd(true);
+        }
+
+        private void supprimerDvd_Click(object sender, EventArgs e)
+        {
+            string id = txbDvdNumero.Text;
+            //check si exemplaire ou commande
+            if (controller.PeutSuppr("commande", id) && controller.PeutSuppr("exemplaire", id))
+            {
+                Confirm f = new Confirm("Êtes-vous sûr de vouloir supprimer " + id, "dvd", id, controller.Suppr);
+                f.Show();
+            }
+            else
+            {
+                Confirm f = new Confirm("Impossible de supprimer : \n" + txbDvdTitre.Text + "\n Il y'a encore une commande ou \n un exmplaire rattaché");
+                f.Show();
+            }
+        }
+
+        private void annulerDvd_Click(object sender, EventArgs e)
+        {
+            ToggleEditionDvd(false);
+        }
+
+        private void validerDvd_Click(object sender, EventArgs e)
+        {
+            Document document = new Document(
+                txbDvdNumero.Text,
+                txbDvdTitre.Text,
+                txbDvdImage.Text,
+                cbxEditGenreDvd.SelectedValue.ToString(),
+                "LeGenre",
+                cbxEditPublicDvd.SelectedValue.ToString(),
+                "Lepublic",
+                cbxEditRayonDvd.SelectedValue.ToString(),
+                "Lerayon"
+
+            );
+            Dvd dvd = new Dvd(document.Id, document.Titre, document.Image, Convert.ToInt32(txbDvdDuree.Text), txbDvdRealisateur.Text, txbDvdSynopsis.Text, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon);
+            if (controller.EditerDvd(dvd))
+            {
+                if (controller.EditerDocument(document))
+                {
+                    RechargerDvd();
+                    ToggleEditionDvd(false);
+                }
+            }
+        }
+
+        public bool AjouterDvd(List<string> data)
+        {
+            Document document = new Document(data[7], data[0], "leimage", data[1], "LeGenre", data[2], "Lepublic", data[3], "Lerayon");
+            Dvd dvd = new Dvd(document.Id, document.Titre, document.Image, Convert.ToInt32(data[4]), data[5], data[6], document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon);
+            if (controller.CreerDocument(document))
+            {
+                if (controller.CreerLivreDvd(dvd))
+                {
+                    if (controller.CreerDvd(dvd))
+                    {
+                        return true;
+                    }
+                }
+                return true;
+            }
+            Console.WriteLine(dvd.Id);
+            return true;
+        }
+
+        private void ToggleEditionDvd(bool status)
+        {
+            if (status)
+            {
+                grpDvdInfos.BackColor = Color.AliceBlue;
+                cbxEditRayonDvd.Visible = true;
+                cbxEditRayonDvd.Enabled = true;
+                cbxEditGenreDvd.Visible = true;
+                cbxEditGenreDvd.Enabled = true;
+                cbxEditPublicDvd.Visible = true;
+                cbxEditPublicDvd.Enabled = true;
+
+                supprimerDvd.Enabled = false;
+                supprimerDvd.Visible = false;
+                validerDvd.Enabled = true;
+                validerDvd.Visible = true;
+                annulerDvd.Enabled = true;
+                annulerDvd.Visible = true;
+
+                txbDvdTitre.BackColor = Color.White;
+                txbDvdTitre.ReadOnly = false;
+
+                txbDvdRealisateur.BackColor = Color.White;
+                txbDvdRealisateur.ReadOnly = false;
+
+                txbDvdSynopsis.BackColor = Color.White;
+                txbDvdSynopsis.ReadOnly = false;
+
+                txbDvdImage.BackColor = Color.White;
+                txbDvdImage.ReadOnly = false;
+
+                txbDvdDuree.BackColor = Color.White;
+                txbDvdDuree.ReadOnly = false;
+
+                var value = cbxEditGenreDvd.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbDvdGenre.Text);
+                if (value != null)
+                {
+                    cbxEditGenreDvd.SelectedItem = value;
+                }
+
+                value = cbxEditRayonDvd.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbDvdRayon.Text);
+                if (value != null)
+                {
+                    cbxEditRayonDvd.SelectedItem = value;
+                }
+
+                value = cbxEditPublicDvd.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbDvdPublic.Text);
+                if (value != null)
+                {
+                    cbxEditPublicDvd.SelectedItem = value;
+                }
+            }
+            else
+            {
+                grpDvdInfos.BackColor = Color.White;
+                cbxEditRayonDvd.Visible = false;
+                cbxEditRayonDvd.Enabled = false;
+                cbxEditGenreDvd.Visible = false;
+                cbxEditGenreDvd.Enabled = false;
+                cbxEditPublicDvd.Visible = false;
+                cbxEditPublicDvd.Enabled = false;
+
+                supprimerDvd.Enabled = true;
+                supprimerDvd.Visible = true;
+                validerDvd.Enabled = false;
+                validerDvd.Visible = false;
+                annulerDvd.Enabled = false;
+                annulerDvd.Visible = false;
+
+                txbDvdTitre.BackColor = txbDvdNumero.BackColor;
+                txbDvdTitre.ReadOnly = true;
+
+                txbDvdRealisateur.BackColor = txbDvdNumero.BackColor;
+                txbDvdRealisateur.ReadOnly = true;
+
+                txbDvdSynopsis.BackColor = txbDvdNumero.BackColor;
+                txbDvdSynopsis.ReadOnly = true;
+
+                txbDvdImage.BackColor = txbDvdNumero.BackColor;
+                txbDvdImage.ReadOnly = true;
+
+                txbDvdDuree.BackColor = txbDvdNumero.BackColor;
+                txbDvdDuree.ReadOnly = true;
+            }
+        }
+        #endregion
+
+        #region Gestion Revues
+        private void ajouterRevue_Click(object sender, EventArgs e)
+        {
+            List<BindingSource> data = new List<BindingSource>
+            {
+                bdgGenres,
+                bdgPublics,
+                bdgRayons
+            };
+            FormAjoutRevue f = new FormAjoutRevue(data);
+            f.Show();
+        }
+
+        private void refreshRevue_Click(object sender, EventArgs e)
+        {
+            RechargerRevues();
+        }
+
+        private void validerRevue_Click(object sender, EventArgs e)
+        {
+            Document document = new Document(
+                txbRevuesNumero.Text,
+                txbRevuesTitre.Text,
+                txbRevuesImage.Text,
+                cbxEditGenreRevue.SelectedValue.ToString(),
+                "LeGenre",
+                cbxEditPublicRevue.SelectedValue.ToString(),
+                "Lepublic",
+                cbxEditRayonRevue.SelectedValue.ToString(),
+                "Lerayon"
+
+            );
+            Revue revue = new Revue(document.Id, document.Titre, document.Image, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon, txbRevuesPeriodicite.Text, Convert.ToInt32(txbRevuesDMAD.Value));
+            if (controller.EditerRevue(revue))
+            {
+                if (controller.EditerDocument(document))
+                {
+                    RechargerRevues();
+                    ToggleEditionRevue(false);
+                }
+            }
+        }
+
+        private void AnnulerRevue_Click(object sender, EventArgs e)
+        {
+            ToggleEditionRevue(false);
+        }
+
+        private void editerRevue_Click(object sender, EventArgs e)
+        {
+            cbxEditRayonRevue.DataSource = bdgRayons.DataSource;
+            cbxEditRayonRevue.DisplayMember = "Libelle";
+            cbxEditRayonRevue.ValueMember = "Id";
+
+            cbxEditGenreRevue.DataSource = bdgGenres.DataSource;
+            cbxEditGenreRevue.DisplayMember = "Libelle";
+            cbxEditGenreRevue.ValueMember = "Id";
+
+            cbxEditPublicRevue.DataSource = bdgPublics.DataSource;
+            cbxEditPublicRevue.DisplayMember = "Libelle";
+            cbxEditPublicRevue.ValueMember = "Id";
+
+            ToggleEditionRevue(true);
+        }
+
+        private void supprimerRevue_Click(object sender, EventArgs e)
+        {
+            string id = txbRevuesNumero.Text;
+            //check si exemplaire ou commande
+            if (controller.PeutSuppr("commande", id) && controller.PeutSuppr("exemplaire", id))
+            {
+                Confirm f = new Confirm("Êtes-vous sûr de vouloir supprimer " + id, "revue", id, controller.Suppr);
+                f.Show();
+            }
+            else
+            {
+                Confirm f = new Confirm("Impossible de supprimer : \n" + txbDvdTitre.Text + "\n Il y'a encore une commande ou \n un exmplaire rattaché");
+                f.Show();
+            }
+        }
+
+        public bool AjouterRevue(List<string> data)
+        {
+            Document document = new Document(data[6], data[0], "leimage", data[1], "LeGenre", data[2], "Lepublic", data[3], "Lerayon");
+            Revue revue = new Revue(document.Id, document.Titre, document.Image, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon, data[4], Convert.ToInt32(data[5]));
+            if (controller.CreerDocument(document))
+            {
+                if (controller.CreerRevue(revue))
+                {
+                    return true;
+                    RechargerRevues();
+                }
+            }
+            Console.WriteLine(revue.Id);
+            return true;
+        }
+
+        private void RechargerRevues()
+        {
+            lesRevues = controller.GetAllRevues();
+            RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxRevuesGenres);
+            RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxRevuesPublics);
+            RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxRevuesRayons);
+            RemplirRevuesListeComplete();
+        }
+
+        private void ToggleEditionRevue(bool status)
+        {
+            if (status)
+            {
+                grpRevuesInfos.BackColor = Color.AliceBlue;
+                cbxEditRayonRevue.Visible = true;
+                cbxEditRayonRevue.Enabled = true;
+                cbxEditGenreRevue.Visible = true;
+                cbxEditGenreRevue.Enabled = true;
+                cbxEditPublicRevue.Visible = true;
+                cbxEditPublicRevue.Enabled = true;
+
+                txbRevuesDMAD.Visible = true;
+                txbRevuesDMAD.Enabled = true;
+
+                supprimerRevue.Enabled = false;
+                supprimerRevue.Visible = false;
+                validerRevue.Enabled = true;
+                validerRevue.Visible = true;
+                annulerRevue.Enabled = true;
+                annulerRevue.Visible = true;
+
+                txbRevuesTitre.BackColor = Color.White;
+                txbRevuesTitre.ReadOnly = false;
+
+                txbRevuesPeriodicite.BackColor = Color.White;
+                txbRevuesPeriodicite.ReadOnly = false;
+
+                txbRevuesImage.BackColor = Color.White;
+                txbRevuesImage.ReadOnly = false;
+
+                var value = cbxEditGenreRevue.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbRevuesGenre.Text);
+                if (value != null)
+                {
+                    cbxEditGenreRevue.SelectedItem = value;
+                }
+
+                value = cbxEditRayonRevue.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbRevuesRayon.Text);
+                if (value != null)
+                {
+                    cbxEditRayonRevue.SelectedItem = value;
+                }
+
+                value = cbxEditPublicRevue.Items.Cast<object>().FirstOrDefault(item => item.ToString() == txbRevuesPublic.Text);
+                if (value != null)
+                {
+                    cbxEditPublicRevue.SelectedItem = value;
+                }
+
+            }
+            else
+            {
+                grpRevuesInfos.BackColor = Color.White;
+                cbxEditRayonRevue.Visible = false;
+                cbxEditRayonRevue.Enabled = false;
+                cbxEditGenreRevue.Visible = false;
+                cbxEditGenreRevue.Enabled = false;
+                cbxEditPublicRevue.Visible = false;
+                cbxEditPublicRevue.Enabled = false;
+
+                txbRevuesDMAD.Visible = false;
+                txbRevuesDMAD.Enabled = false;
+
+                supprimerRevue.Enabled = true;
+                supprimerRevue.Visible = true;
+                validerRevue.Enabled = false;
+                validerRevue.Visible = false;
+                annulerRevue.Enabled = false;
+                annulerRevue.Visible = false;
+
+                txbRevuesTitre.BackColor = txbRevuesNumero.BackColor;
+                txbRevuesTitre.ReadOnly = true;
+
+                txbRevuesPeriodicite.BackColor = txbRevuesNumero.BackColor;
+                txbRevuesPeriodicite.ReadOnly = true;
+
+                txbRevuesImage.BackColor = txbRevuesNumero.BackColor;
+                txbRevuesImage.ReadOnly = true;
+            }
+        }
+
+        #endregion
+
+        #region Commandes livres
+
+        private readonly BindingSource bdgSuivis = new BindingSource();
+        private void rechercherCommandeLivre_Click(object sender, EventArgs e)
+        {
+            RechercherLivre(txbIdLivre.Text);
+        }
+
+        private void RechercherLivre(string id)
+        {
+            Livre livre = controller.GetLivre(id);
+            List<CommandeDocument> commandes = controller.GetCommande(id);
+            if (livre != null)
+            {
+                if (commandes != null)
+                {
+                    RemplirInfosLivre(livre);
+                    RemplirTableauLivre(commandes);
+                    error.Text = "";
+                }
+                else
+                {
+                    RemplirInfosLivre(livre);
+                    ViderTableauLivre();
+                    error.ForeColor = Color.Red;
+                    error.Font = new Font("Arial", 12);
+                    error.Text = "Aucune commande de ce livre, vous pouvez en ajouter !";
+                }
+            }
+            else
+            {
+                error.ForeColor = Color.Red;
+                error.Font = new Font("Arial", 12);
+                error.Text = "Numéro de livre introuvable";
+            }
+        }
+
+        private void RemplirInfosLivre(Livre livre)
+        {
+            txbInfosLivreTitre.Text = livre.Titre;
+            txbInfosLivreAuteur.Text = livre.Auteur;
+            txbInfosLivreCollection.Text = livre.Collection;
+            txbInfosLivreGenre.Text = livre.Genre;
+            txbInfosLivrePublic.Text = livre.Public;
+            txbInfosLivreRayon.Text = livre.Rayon;
+            txbInfosLivreImage.Text = livre.Image;
+
+            txbSelectedLivre.Text = livre.Id;
+        }
+
+        private void RemplirTableauLivre(List<CommandeDocument> commandes)
+        {
+            dgvCommandeLivre.DataSource = commandes;
+            dgvCommandeLivre.Columns["IdSuivi"].Visible = false;
+            dgvCommandeLivre.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dgvCommandeLivre.Columns["id"].DisplayIndex = 0;
+        }
+
+        private void ViderTableauLivre()
+        {
+            dgvCommandeLivre.DataSource = null;
+        }
+
+        private void dgvCommandeLivre_SelectionChanged(object sender, EventArgs e)
+        {
+            bdgSuivis.DataSource = controller.GetAllSuivis();
+            if (dgvCommandeLivre.SelectedRows.Count > 0)
+            {
+                DataGridViewRow selectedRow = dgvCommandeLivre.SelectedRows[0];
+                string commandeId = selectedRow.Cells["id"].Value.ToString();
+                string commandeSuivi = selectedRow.Cells["suivi"].Value.ToString();
+                string commandeidSuivi = selectedRow.Cells["idSuivi"].Value.ToString();
+                RemplirInfosCommande(commandeId, commandeidSuivi, commandeSuivi);
+            }
+        }
+
+        private void RemplirInfosCommande(string id, string idSuivi, string commandeSuivi)
+        {
+            txbSelectedCommande.Text = id;
+            txbSelectedCommande2.Text = id;
+            txbSelectedCommandeSuivi.Text = commandeSuivi;
+
+            RemplircbxSetSuivi(idSuivi);
+        }
+
+        private void RemplircbxSetSuivi(string id)
+        {
+            int suiviId = int.Parse(id);
+            switch (id)
+            {
+                case "00001":
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00004"));
+                    btnSupprCommande.Enabled = false;
+                    cbxSetSuivi.Enabled = true;
+                    break;
+                case "00002":
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00001"));
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00004"));
+                    btnSupprCommande.Enabled = false;
+                    cbxSetSuivi.Enabled = true;
+                    break;
+                case "00003":
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00001"));
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00002"));
+                    btnSupprCommande.Enabled = true;
+                    cbxSetSuivi.Enabled = true;
+                    break;
+                case "00004":
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00001"));
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00002"));
+                    bdgSuivis.Remove(bdgSuivis.List.OfType<Suivi>().FirstOrDefault(item => item.Id == "00003"));
+                    btnSupprCommande.Enabled = true;
+                    cbxSetSuivi.Enabled = false;
+                    break;
+            }
+
+            cbxSetSuivi.DataSource = bdgSuivis;
+            cbxSetSuivi.DisplayMember = "Libelle";
+            cbxSetSuivi.ValueMember = "Id";
+            cbxSetSuivi.SelectedItem = suiviId;
+        }
+
+        private void RechargerCommandeLivre(Livre livre)
+        {
+            RemplirInfosLivre(livre);
+            RemplirTableauLivre(controller.GetCommande(livre.Id));
+        }
+
+        #endregion
+
+        private void btnAjoutCommande_Click(object sender, EventArgs e)
+        {
+            if (txbSelectedLivre.Text != "" && txbSelectedLivre.Text != null)
+            {
+                Commande commande = new Commande(controller.GenererId("commande"), DateTime.Now, (double)txbCommandeMontantLivre.Value);
+                CommandeDocument commandeDocument = new CommandeDocument(commande.Id, commande.DateCommande, commande.Montant, (int)txbCommandeNbLivre.Value, txbSelectedLivre.Text, "00001", "En cours");
+
+                if (controller.CreerCommande(commande))
+                {
+                    if (controller.CreerCommandeDocument(commandeDocument))
+                    {
+                        error.ForeColor = Color.Blue;
+                        error.Font = new Font("Arial", 12);
+                        error.Text = "Commande enregistrée";
+                        RechargerCommandeLivre(controller.GetLivre(commandeDocument.IdLivreDvd));
+                    }
+                }
+            }
+            else
+            {
+                error.ForeColor = Color.Red;
+                error.Font = new Font("Arial", 12);
+                error.Text = "Vous devez sélectionner un livre";
+            }
+        }
+
+        private void btnEditSuivi_Click(object sender, EventArgs e)
+        {
+            if (txbSelectedCommande.Text != "" && txbSelectedCommande.Text != null)
+            {
+                Commande commande = new Commande(txbSelectedCommande.Text, DateTime.Now, (double)txbCommandeMontantLivre.Value);
+                CommandeDocument commandeDocument = new CommandeDocument(commande.Id, commande.DateCommande, commande.Montant, (int)txbCommandeNbLivre.Value, txbSelectedLivre.Text, cbxSetSuivi.SelectedValue.ToString(), cbxSetSuivi.Text);
+
+                if (controller.EditerCommande(commande))
+                {
+                    if (controller.EditerCommandeDocument(commandeDocument))
+                    {
+                        error.ForeColor = Color.Blue;
+                        error.Font = new Font("Arial", 12);
+                        error.Text = "Suivi édité";
+                        RechargerCommandeLivre(controller.GetLivre(commandeDocument.IdLivreDvd));
+                    }
+                }
+                else
+                {
+                    error.ForeColor = Color.Red;
+                    error.Font = new Font("Arial", 12);
+                    error.Text = "Vous devez sélectionner une commande";
+                }
+            }
+        }
+
+        private void btnSupprCommande_Click(object sender, EventArgs e)
+        {
+            string id = txbSelectedCommande2.Text;
+            Confirm f = new Confirm("Êtes-vous sûr de vouloir supprimer " + id, "commande", id, controller.Suppr);
+            f.FormClosed += (s, args) =>
+            {
+                RechargerCommandeLivre(controller.GetLivre(txbSelectedLivre.Text));
+            };
+            f.Show();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿
+﻿using MediaTekDocuments.dal;
+
 namespace MediaTekDocuments.model
 {
     /// <summary>
@@ -18,8 +19,5 @@ namespace MediaTekDocuments.model
             this.Auteur = auteur;
             this.Collection = collection;
         }
-
-
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MediaTekDocuments.model;
 using MediaTekDocuments.dal;
+using System;
 
 namespace MediaTekDocuments.controller
 {
@@ -95,6 +96,132 @@ namespace MediaTekDocuments.controller
         public bool CreerExemplaire(Exemplaire exemplaire)
         {
             return access.CreerExemplaire(exemplaire);
+        }
+
+        public bool CreerDocument(Document document)
+        {
+            return access.CreerDocument(document);
+        }
+
+        public bool CreerLivreDvd(LivreDvd ldvd)
+        {
+            return access.CreerLivreDvd(ldvd);
+        }
+
+        public bool CreerLivre(Livre livre)
+        {
+            return access.CreerLivre(livre);
+        }
+
+        public bool PeutSuppr(string table, string id)
+        {
+            return access.PeutSuppr(table, id);
+        }
+
+        public void Suppr(string table, string id)
+        {
+            access.Suppr(table, id);
+        }
+
+        public int GetPlusGrandId(string table)
+        {
+            return access.GetPlusGrandId(table);
+        }
+
+        public string GenererId(string table)
+        {
+            string res = "";
+            int id = GetPlusGrandId(table);
+            if (id > 0)
+            {
+                id += 1;
+                res = id.ToString("D5");
+            } 
+            else
+            {
+                switch (table)
+                {
+                    case "livre":
+                        res = "00001";
+                        break;
+                    case "dvd":
+                        res = "10001";
+                        break;
+                    case "revue": 
+                        res = "20001";
+                        break;
+                    case "commande":
+                        res = "30001";
+                        break;
+                }
+            }
+            return res;
+
+        }
+
+        public bool EditerDocument(Document document)
+        {
+            return access.EditerDocument(document);
+        }
+
+        public bool EditerLivre(Livre livre)
+        {
+            return access.EditerLivre(livre);
+        }
+
+        public bool CreerDvd(Dvd dvd)
+        {
+            return access.CreerDvd(dvd);
+        }
+
+        public bool EditerDvd(Dvd dvd)
+        {
+            return access.EditerDvd(dvd);
+        }
+
+        public bool CreerRevue(Revue revue)
+        {
+            return access.CreerRevue(revue);
+        }
+
+        public bool EditerRevue(Revue revue)
+        {
+            return access.EditerRevue(revue);
+        }
+
+        public Livre GetLivre(string id)
+        {
+            return access.GetLivre(id);
+        }
+
+        public List<CommandeDocument> GetCommande(string id)
+        {
+            return access.GetCommande(id);
+        }
+
+        public List<Suivi> GetAllSuivis()
+        {
+            return access.GetAllSuivis();
+        }
+
+        public bool CreerCommande(Commande commande)
+        {
+            return access.CreerCommande(commande);
+        }
+
+        public bool CreerCommandeDocument(CommandeDocument commandeDocument)
+        {
+            return access.CreerCommandeDocument(commandeDocument);
+        }
+
+        public bool EditerCommandeDocument(CommandeDocument commandeDocument)
+        {
+            return access.EditerCommandeDocument(commandeDocument);
+        }
+
+        public bool EditerCommande(Commande commande)
+        {
+            return access.EditerCommande(commande);
         }
     }
 }

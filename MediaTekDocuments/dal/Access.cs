@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Configuration;
+using System.Xml.Linq;
 
 namespace MediaTekDocuments.dal
 {
@@ -34,8 +35,6 @@ namespace MediaTekDocuments.dal
         /// méthode HTTP pour insert
         /// </summary>
         private const string POST = "POST";
-        /// <summary>
-        /// méthode HTTP pour update
 
         /// <summary>
         /// Méthode privée pour créer un singleton
@@ -128,6 +127,12 @@ namespace MediaTekDocuments.dal
             List<Revue> lesRevues = TraitementRecup<Revue>(GET, "revue");
             return lesRevues;
         }
+        
+        public List<Suivi> GetAllSuivis()
+        {
+            List<Suivi> lesSuivis = TraitementRecup<Suivi>(GET, "suivi");
+            return lesSuivis;
+        }
 
 
         /// <summary>
@@ -141,6 +146,38 @@ namespace MediaTekDocuments.dal
             return lesExemplaires;
         }
 
+        /*public string GetLivreByIdJoinCommandes(string id)
+        {
+            List<Livre> lesExemplaires = TraitementRecup<Livre>(GET, "livre/" + id);
+        }*/
+
+        public List<CommandeDocument> GetCommande(string id)
+        {
+            List<CommandeDocument> Commandes = TraitementRecup<CommandeDocument>(GET, "commande/" + id);
+            if (Commandes.Count > 0)
+            {
+                return Commandes;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        public Livre GetLivre(string id)
+        {
+            List<Livre> livres = TraitementRecup<Livre>(GET, "livre/" + id);
+            if (livres.Count > 0)
+            {
+                return livres[0];
+            }
+            else
+            {
+                return null;
+            }
+            
+        }
         /// <summary>
         /// ecriture d'un exemplaire en base de données
         /// </summary>
@@ -160,6 +197,264 @@ namespace MediaTekDocuments.dal
             }
             return false; 
         }
+
+        public bool CreerDocument(Document document)
+        {
+            string json = JsonConvert.SerializeObject(document);
+            try
+            {
+                List<Document> liste = TraitementRecup<Document>(POST, "document/" + "true/" + json);
+                return (liste != null);
+            } 
+            catch (Exception ex) 
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool CreerLivreDvd(LivreDvd ldvd)
+        {
+            string json = JsonConvert.SerializeObject(ldvd);
+            try
+            {
+                List<LivreDvd> liste = TraitementRecup<LivreDvd>(POST, "livresdvd/" + "true/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public int GetPlusGrandId(string table) 
+        {
+            List<Dictionary<string, string>> ids = TraitementRecup<Dictionary<string, string>>(GET, table + "/get");
+            return int.Parse(ids[0]["id"]);
+        }
+
+        public bool CreerLivre(Livre livre) 
+        {
+            string json = JsonConvert.SerializeObject(livre);
+            try
+            {
+                List<Livre> liste = TraitementRecup<Livre>(POST, "livre/" + "true/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool EditerDocument(Document document)
+        {
+            string json = JsonConvert.SerializeObject(document);
+            try
+            {
+                List<Document> liste = TraitementRecup<Document>(POST, "document/" + document.Id + "/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool EditerLivre(Livre livre)
+        {
+            string json = JsonConvert.SerializeObject(livre);
+            try
+            {
+                List<Livre> liste = TraitementRecup<Livre>(POST, "livre/" + livre.Id +"/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool PeutSuppr(string table, string id)
+        {
+            try
+            {
+                List<Document> liste = TraitementRecup<Document>(GET, table + "/" + id);
+                return (liste.Count <= 0);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+
+        }
+
+        public void Suppr(string type, string id)
+        {
+            Dictionary<string, string> dic = new Dictionary<string, string>
+            {
+                { "id", id }
+            };
+            string json = JsonConvert.SerializeObject(dic);
+            try
+            {
+                switch (type)
+                {
+                    case "livre":
+                        TraitementRecup<Document>(POST, "livre/true/REM/" + json);
+                        TraitementRecup<Document>(POST, "livresdvd/true/REM/" + json);
+                        TraitementRecup<Document>(POST, "document/true/REM/" + json);
+                        break;
+
+                    case "dvd":
+                        TraitementRecup<Document>(POST, "dvd/true/REM/" + json);
+                        TraitementRecup<Document>(POST, "livresdvd/true/REM/" + json);
+                        TraitementRecup<Document>(POST, "document/true/REM/" + json);
+                        break;
+
+                    case "revue":
+                        TraitementRecup<Document>(POST, "revue/true/REM/" + json);
+                        TraitementRecup<Document>(POST, "document/true/REM/" + json);
+                        break;
+                    case "commande":
+                        TraitementRecup<Document>(POST, "commande/true/REM/" + json);
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        public bool CreerDvd(Dvd dvd) 
+        {
+            string json = JsonConvert.SerializeObject(dvd);
+            try
+            {
+                List<Dvd> liste = TraitementRecup<Dvd>(POST, "dvd/" + "true/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+        
+        public bool EditerDvd(Dvd dvd)
+        {
+            string json = JsonConvert.SerializeObject(dvd);
+            try
+            {
+                List<Dvd> liste = TraitementRecup<Dvd>(POST, "dvd/" + dvd.Id + "/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool CreerRevue(Revue revue)
+        {
+            string json = JsonConvert.SerializeObject(revue);
+            try
+            {
+                List<Revue> liste = TraitementRecup<Revue>(POST, "revue/" + "true/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool EditerRevue(Revue revue)
+        {
+            string json = JsonConvert.SerializeObject(revue);
+            try
+            {
+                List<Revue> liste = TraitementRecup<Revue>(POST, "revue/" + revue.Id + "/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool CreerCommande(Commande commande)
+        {
+            string json = JsonConvert.SerializeObject(commande);
+            try
+            {
+                List<Commande> liste = TraitementRecup<Commande>(POST, "commande/" + "true/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
+        public bool CreerCommandeDocument(CommandeDocument commande)
+        {
+            string json = JsonConvert.SerializeObject(commande);
+            try
+            {
+                List<CommandeDocument> liste = TraitementRecup<CommandeDocument>(POST, "commandedocument/" + "true/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+        
+        public bool EditerCommandeDocument(CommandeDocument commandeDocument)
+        {
+            string json = JsonConvert.SerializeObject(commandeDocument);
+            try
+            {
+                List<CommandeDocument> liste = TraitementRecup<CommandeDocument>(POST, "commandedocument/" + commandeDocument.Id + "/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+        
+        public bool EditerCommande(Commande commande)
+        {
+            string json = JsonConvert.SerializeObject(commande);
+            try
+            {
+                List<Commande> liste = TraitementRecup<Commande>(POST, "commande/" + commande.Id + "/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
+
 
         /// <summary>
         /// Traitement de la récupération du retour de l'api, avec conversion du json en liste pour les select (GET)
