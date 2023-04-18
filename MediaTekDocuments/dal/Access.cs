@@ -98,6 +98,12 @@ namespace MediaTekDocuments.dal
             return new List<Categorie>(lesPublics);
         }
 
+        public List<Etat> GetAllEtats()
+        {
+            IEnumerable<Etat> lesEtats = TraitementRecup<Etat>(GET, "etat");
+            return new List<Etat>(lesEtats);
+        }
+
         /// <summary>
         /// Retourne toutes les livres à partir de la BDD
         /// </summary>
@@ -145,11 +151,6 @@ namespace MediaTekDocuments.dal
             List<Exemplaire> lesExemplaires = TraitementRecup<Exemplaire>(GET, "exemplaire/" + idDocument);
             return lesExemplaires;
         }
-
-        /*public string GetLivreByIdJoinCommandes(string id)
-        {
-            List<Livre> lesExemplaires = TraitementRecup<Livre>(GET, "livre/" + id);
-        }*/
 
         public List<CommandeDocument> GetCommande(string id)
         {
@@ -232,6 +233,36 @@ namespace MediaTekDocuments.dal
         {
             List<Dictionary<string, string>> ids = TraitementRecup<Dictionary<string, string>>(GET, table + "/get");
             return int.Parse(ids[0]["id"]);
+        }
+
+        public string GenererId(string table)
+        {
+            string res = "";
+            int id = GetPlusGrandId(table);
+            if (id > 0)
+            {
+                id += 1;
+                res = id.ToString("D5");
+            }
+            else
+            {
+                switch (table)
+                {
+                    case "livre":
+                        res = "00001";
+                        break;
+                    case "dvd":
+                        res = "20001";
+                        break;
+                    case "revue":
+                        res = "10001";
+                        break;
+                    case "commande":
+                        res = "30001";
+                        break;
+                }
+            }
+            return res;
         }
 
         public bool CreerLivre(Livre livre) 
@@ -323,6 +354,12 @@ namespace MediaTekDocuments.dal
                         break;
                     case "commande":
                         TraitementRecup<Document>(POST, "commande/true/REM/" + json);
+                        break;
+                    case "exemplaire":
+                        dic.Add("numero", id);
+                        dic.Remove("id");
+                        json = JsonConvert.SerializeObject(dic);
+                        TraitementRecup<Exemplaire>(POST, "exemplaire/true/REM/" + json);
                         break;
                     default:
                         break;
@@ -454,8 +491,21 @@ namespace MediaTekDocuments.dal
             }
             return false;
         }
-
-
+        
+        public bool EditerEtatExemplaire(Exemplaire exemplaire)
+        {
+            string json = JsonConvert.SerializeObject(exemplaire);
+            try
+            {
+                List<Exemplaire> liste = TraitementRecup<Exemplaire>(POST, "exemplaire/" + exemplaire.Numero + "/UPD/" + json);
+                return (liste != null);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return false;
+        }
         /// <summary>
         /// Traitement de la récupération du retour de l'api, avec conversion du json en liste pour les select (GET)
         /// </summary>

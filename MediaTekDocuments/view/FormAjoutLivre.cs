@@ -68,7 +68,6 @@ namespace MediaTekDocuments.view
             }
             else
             {
-                Console.WriteLine(valid.message);
                 ErrorMsg.Text = "/!\\ " + valid.message;
                 ErrorMsg.ForeColor = Color.Red;
                 ErrorMsg.Font = new Font("Arial", 12);

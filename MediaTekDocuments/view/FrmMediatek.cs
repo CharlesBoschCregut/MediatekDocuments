@@ -54,7 +54,10 @@ namespace MediaTekDocuments.view
 
         #region Onglet Livres
         private readonly BindingSource bdgLivresListe = new BindingSource();
+        private readonly BindingSource bdgExemplaireLivre = new BindingSource();
+        private readonly BindingSource bdgEtats = new BindingSource();
         private List<Livre> lesLivres = new List<Livre>();
+        private List<Exemplaire> lesExemplairesLivres = new List<Exemplaire>();
 
         /// <summary>
         /// Ouverture de l'onglet Livres : 
@@ -73,6 +76,7 @@ namespace MediaTekDocuments.view
             RemplirComboCategorie(controller.GetAllGenres(), bdgGenres, cbxLivresGenres);
             RemplirComboCategorie(controller.GetAllPublics(), bdgPublics, cbxLivresPublics);
             RemplirComboCategorie(controller.GetAllRayons(), bdgRayons, cbxLivresRayons);
+            bdgEtats.DataSource = controller.GetAllEtats();
             RemplirLivresListeComplete();
         }
 
@@ -271,6 +275,7 @@ namespace MediaTekDocuments.view
                 {
                     Livre livre = (Livre)bdgLivresListe.List[bdgLivresListe.Position];
                     AfficheLivresInfos(livre);
+                    RemplirExemplairesLivres(livre.Id);
                 }
                 catch
                 {
@@ -371,6 +376,149 @@ namespace MediaTekDocuments.view
             }
             RemplirLivresListe(sortedList);
         }
+
+        private void RemplirExemplairesLivres(string id)
+        {
+            dgvExemplairesLivres.DataSource = null;
+            lesExemplairesLivres = controller.GetExemplairesRevue(id);
+
+            if (lesExemplairesLivres.Count > 0)
+            {
+                bdgExemplaireLivre.DataSource = lesExemplairesLivres;
+                dgvExemplairesLivres.DataSource = lesExemplairesLivres;
+                dgvExemplairesLivres.Columns["Id"].Visible = false;
+                dgvExemplairesLivres.Columns["IdEtat"].Visible = false;
+                dgvExemplairesLivres.Columns["photo"].Visible = false;
+                dgvExemplairesLivres.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                ViderInfosExemplaireLivre();
+                dgvExemplairesLivres.ClearSelection();
+            }
+        }
+
+        private void RemplirInfosExemplaireLivre(Exemplaire exemplaire)
+        {
+            txbIdExemplaireLivre.Text = exemplaire.Numero.ToString();
+            txbIdExemplaireLivre2.Text = exemplaire.Numero.ToString();
+            txbEtatExemplaireLivre.Text = exemplaire.Etat;
+
+            cbxSetEtatLivre.DataSource = bdgEtats;
+            cbxSetEtatLivre.DisplayMember = "Libelle";
+            cbxSetEtatLivre.ValueMember = "Id";
+            cbxSetEtatLivre.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbxSetEtatLivre.FlatStyle = FlatStyle.Flat;
+        }
+
+        private void ViderInfosExemplaireLivre()
+        {
+            txbIdExemplaireLivre.Text = "";
+            txbIdExemplaireLivre2.Text = "";
+            txbEtatExemplaireLivre.Text = "";
+
+            cbxSetEtatLivre.DataSource = null;
+        }
+
+        private void dgvExemplairesLivres_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow selectedRow = dgvExemplairesLivres.Rows[e.RowIndex];
+                if (selectedRow != null)
+                {
+                    string numero = selectedRow.Cells["Numero"].Value.ToString();
+                    var exemplaireList = bdgExemplaireLivre.DataSource as List<Exemplaire>;
+                    Exemplaire exemplaire = exemplaireList.FirstOrDefault(ex => ex.Numero == int.Parse(numero));
+                    RemplirInfosExemplaireLivre(exemplaire);
+                }
+            }
+        }
+
+        private void dgvExemplairesLivres_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            
+            string titreColonne = dgvExemplairesLivres.Columns[e.ColumnIndex].HeaderText;
+            List<Exemplaire> sortedList = new List<Exemplaire>();
+            switch (titreColonne)
+            {
+                case "Numero":
+                    sortedList = lesExemplairesLivres.OrderBy(o => o.Numero).ToList();
+                    break;
+                case "DateAchat":
+                    sortedList = lesExemplairesLivres.OrderByDescending(o => o.DateAchat).ToList();
+                    break;
+                case "Etat":
+                    sortedList = lesExemplairesLivres.OrderBy(o => o.Etat).ToList();
+                    break;
+                default:
+                    sortedList = lesExemplairesLivres.OrderByDescending(o => o.DateAchat).ToList();
+                    break;
+            }
+
+            lesExemplairesLivres = sortedList;
+            bdgExemplaireLivre.DataSource = lesExemplairesLivres;
+            dgvExemplairesLivres.DataSource = lesExemplairesLivres;
+            dgvExemplairesLivres.Columns["Id"].Visible = false;
+            dgvExemplairesLivres.Columns["IdEtat"].Visible = false;
+            dgvExemplairesLivres.Columns["photo"].Visible = false;
+            dgvExemplairesLivres.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            ViderInfosExemplaireLivre();
+            dgvExemplairesLivres.ClearSelection();
+        }
+
+        private void btnEditExemplaireLivre_Click(object sender, EventArgs e)
+        {
+            string id = txbIdExemplaireLivre.Text;
+            if (id != "" && id != null)
+            {
+                DataGridViewRow selectedRow = dgvExemplairesLivres.SelectedRows[0];
+                if (selectedRow != null)
+                {
+                    string numero = selectedRow.Cells["Numero"].Value.ToString();
+                    var exemplaireList = bdgExemplaireLivre.DataSource as List<Exemplaire>;
+                    Exemplaire exemplaire = exemplaireList.FirstOrDefault(ex => ex.Numero == int.Parse(numero));
+                    exemplaire.IdEtat = cbxSetEtatLivre.SelectedValue.ToString();
+                    if (controller.EditerEtatExemplaire(exemplaire))
+                    {
+                        RefreshExemplaireLivre();
+                    }
+                }
+
+            }
+            else
+            {
+                MessageBox.Show("Veuillez séléctionner un exemplaire");
+            }
+        }
+
+        private void RefreshExemplaireLivre()
+        {
+            DataGridViewRow selectedRow = dgvExemplairesLivres.SelectedRows[0];
+            if (selectedRow != null)
+            {
+                string id = selectedRow.Cells["Id"].Value.ToString();
+                RemplirExemplairesLivres(id);
+            }
+        }
+
+
+        private void btnSupprExemplaireLivre_Click(object sender, EventArgs e)
+        {
+            string id = txbIdExemplaireLivre2.Text;
+            if(id !=  "" && id != null)
+            {
+                Confirm f = new Confirm("Êtes-vous sûr de vouloir supprimer " + id, "exemplaire", id, controller.Suppr);
+                f.Show();
+                f.FormClosed += (s, args) =>
+                {
+                    RefreshExemplaireLivre();
+                };
+                f.Show();
+            }
+            else
+            {
+                MessageBox.Show("Veuillez séléctionner un exemplaire");
+            }
+        }
+
         #endregion
 
         #region Onglet Dvd
@@ -995,7 +1143,7 @@ namespace MediaTekDocuments.view
         }
         #endregion
 
-        #region Onglet Paarutions
+        #region Onglet Parutions
         private readonly BindingSource bdgExemplairesListe = new BindingSource();
         private List<Exemplaire> lesExemplaires = new List<Exemplaire>();
         const string ETATNEUF = "00001";
@@ -1023,6 +1171,7 @@ namespace MediaTekDocuments.view
                 dgvReceptionExemplairesListe.DataSource = bdgExemplairesListe;
                 dgvReceptionExemplairesListe.Columns["idEtat"].Visible = false;
                 dgvReceptionExemplairesListe.Columns["id"].Visible = false;
+                dgvReceptionExemplairesListe.Columns["photo"].Visible = false;
                 dgvReceptionExemplairesListe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                 dgvReceptionExemplairesListe.Columns["numero"].DisplayIndex = 0;
                 dgvReceptionExemplairesListe.Columns["dateAchat"].DisplayIndex = 1;
@@ -1172,7 +1321,7 @@ namespace MediaTekDocuments.view
                     string photo = txbReceptionExemplaireImage.Text;
                     string idEtat = ETATNEUF;
                     string idDocument = txbReceptionRevueNumero.Text;
-                    Exemplaire exemplaire = new Exemplaire(numero, dateAchat, photo, idEtat, idDocument);
+                    Exemplaire exemplaire = new Exemplaire(numero, dateAchat, photo, idEtat, "neuf", idDocument);
                     if (controller.CreerExemplaire(exemplaire))
                     {
                         AfficheReceptionExemplairesRevue();
@@ -1547,7 +1696,6 @@ namespace MediaTekDocuments.view
                 }
                 return true;
             }
-            Console.WriteLine(dvd.Id);
             return true;
         }
 
@@ -1731,7 +1879,6 @@ namespace MediaTekDocuments.view
                     RechargerRevues();
                 }
             }
-            Console.WriteLine(revue.Id);
             return true;
         }
 
@@ -1955,8 +2102,6 @@ namespace MediaTekDocuments.view
             RemplirTableauLivre(controller.GetCommande(livre.Id));
         }
 
-        #endregion
-
         private void btnAjoutCommande_Click(object sender, EventArgs e)
         {
             if (txbSelectedLivre.Text != "" && txbSelectedLivre.Text != null)
@@ -2019,5 +2164,8 @@ namespace MediaTekDocuments.view
             };
             f.Show();
         }
+
+
+        #endregion
     }
 }

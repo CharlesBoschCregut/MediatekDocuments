@@ -60,10 +60,6 @@ namespace MediaTekDocuments.view
                     richTextBoxSynopsis.Text,
                     controller.GenererId("dvd")
                 };
-                for (int i = 0; i < list.Count; i++)
-                {
-                    Console.WriteLine(list[i]);
-                }
                 if (view.AjouterDvd(list))
                 {
                     this.Close();
@@ -71,7 +67,6 @@ namespace MediaTekDocuments.view
             }
             else
             {
-                Console.WriteLine(valid.message);
                 ErrorMsg.Text = "/!\\ " + valid.message;
                 ErrorMsg.ForeColor = Color.Red;
                 ErrorMsg.Font = new Font("Arial", 12);

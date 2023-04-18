@@ -77,6 +77,11 @@ namespace MediaTekDocuments.controller
             return access.GetAllPublics();
         }
 
+        public List<Etat> GetAllEtats()
+        { 
+            return access.GetAllEtats();
+        }
+
 
         /// <summary>
         /// récupère les exemplaires d'une revue
@@ -130,33 +135,7 @@ namespace MediaTekDocuments.controller
 
         public string GenererId(string table)
         {
-            string res = "";
-            int id = GetPlusGrandId(table);
-            if (id > 0)
-            {
-                id += 1;
-                res = id.ToString("D5");
-            } 
-            else
-            {
-                switch (table)
-                {
-                    case "livre":
-                        res = "00001";
-                        break;
-                    case "dvd":
-                        res = "10001";
-                        break;
-                    case "revue": 
-                        res = "20001";
-                        break;
-                    case "commande":
-                        res = "30001";
-                        break;
-                }
-            }
-            return res;
-
+            return access.GenererId(table);
         }
 
         public bool EditerDocument(Document document)
@@ -222,6 +201,11 @@ namespace MediaTekDocuments.controller
         public bool EditerCommande(Commande commande)
         {
             return access.EditerCommande(commande);
+        }
+
+        public bool EditerEtatExemplaire(Exemplaire exemplaire)
+        {
+            return access.EditerEtatExemplaire(exemplaire);
         }
     }
 }

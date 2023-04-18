@@ -59,10 +59,6 @@ namespace MediaTekDocuments.view
                     numDMAD.Value.ToString(),
                     controller.GenererId("revue")
                 };
-                for (int i = 0; i < list.Count; i++)
-                {
-                    Console.WriteLine(list[i]);
-                }
                 if (view.AjouterRevue(list))
                 {
                     this.Close();
@@ -70,7 +66,6 @@ namespace MediaTekDocuments.view
             }
             else
             {
-                Console.WriteLine(valid.message);
                 ErrorMsg.Text = "/!\\ " + valid.message;
                 ErrorMsg.ForeColor = Color.Red;
                 ErrorMsg.Font = new Font("Arial", 12);
