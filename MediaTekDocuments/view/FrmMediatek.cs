@@ -25,12 +25,14 @@ namespace MediaTekDocuments.view
         private readonly BindingSource bdgGenres = new BindingSource();
         private readonly BindingSource bdgPublics = new BindingSource();
         private readonly BindingSource bdgRayons = new BindingSource();
+        private string service;
 
         /// <summary>
         /// Constructeur : création du contrôleur lié à ce formulaire
         /// </summary>
-        internal FrmMediatek()
+        internal FrmMediatek(string service)
         {
+            this.service = service;
             InitializeComponent();
             this.controller = new FrmMediatekController();
         }
@@ -67,6 +69,19 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void TabLivres_Enter(object sender, EventArgs e)
         {
+            if (this.service == "001")
+            {
+                ajouterLivre.Visible = false;
+                ajouterLivre.Enabled = false;
+                editerLivre.Visible = false;
+                editerLivre.Enabled = false;
+                supprimerLivre.Visible = false;
+                supprimerLivre.Enabled = false;
+                groupBox6.Enabled = false;
+                groupBox6.Visible = false;
+                groupBox7.Enabled = false;
+                groupBox7.Visible = false;
+            }
             RechargerLivres();
         }
 
@@ -533,6 +548,19 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void tabDvd_Enter(object sender, EventArgs e)
         {
+            if (this.service == "001")
+            {
+                ajouterDvd.Visible = false;
+                ajouterDvd.Enabled = false;
+                editerDvd.Visible = false;
+                editerDvd.Enabled = false;
+                supprimerDvd.Visible = false;
+                supprimerDvd.Enabled = false;
+                /*groupBox6.Enabled = false;
+                groupBox6.Visible = false;
+                groupBox7.Enabled = false;
+                groupBox7.Visible = false;*/
+            }
             RechargerDvd();
         }
 
@@ -845,6 +873,19 @@ namespace MediaTekDocuments.view
         /// <param name="e"></param>
         private void tabRevues_Enter(object sender, EventArgs e)
         {
+            if (this.service == "001")
+            {
+                ajouterRevue.Visible = false;
+                ajouterRevue.Enabled = false;
+                editerRevue.Visible = false;
+                editerRevue.Enabled = false;
+                supprimerRevue.Visible = false;
+                supprimerRevue.Enabled = false;
+                /*groupBox6.Enabled = false;
+                groupBox6.Visible = false;
+                groupBox7.Enabled = false;
+                groupBox7.Visible = false;*/
+            }
             RechargerRevues();
         }
 
@@ -1544,8 +1585,6 @@ namespace MediaTekDocuments.view
                 cbxEditPublicLivre.Visible = false;
                 cbxEditPublicLivre.Enabled = false;
 
-                supprimerLivre.Enabled = true;
-                supprimerLivre.Visible = true;
                 validerLivre.Enabled = false;
                 validerLivre.Visible = false;
                 annulerLivre.Enabled = false;

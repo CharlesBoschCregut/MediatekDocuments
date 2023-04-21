@@ -207,5 +207,10 @@ namespace MediaTekDocuments.controller
         {
             return access.EditerEtatExemplaire(exemplaire);
         }
+
+        public string GetUserLogin(string username, string pwd)
+        {
+            return access.GetUserLogin(username, pwd);
+        }
     }
 }

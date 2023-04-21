@@ -18,7 +18,6 @@ namespace MediaTekDocuments.view
         public FormAjoutLivre(List<BindingSource> data)
         {
             InitializeComponent();
-            this.view = new FrmMediatek();
             this.controller = new FrmMediatekController();
              
             this.Genres.DataSource = data[0].DataSource;

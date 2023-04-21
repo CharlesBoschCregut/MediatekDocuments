@@ -220,7 +220,7 @@ namespace MediaTekDocuments.view
             this.label53 = new System.Windows.Forms.Label();
             this.label54 = new System.Windows.Forms.Label();
             this.btnReceptionRechercher = new System.Windows.Forms.Button();
-            this.commandesLivres = new System.Windows.Forms.TabPage();
+            this.tabCommandesLivres = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.cbxSetSuivi = new System.Windows.Forms.ComboBox();
             this.label78 = new System.Windows.Forms.Label();
@@ -295,7 +295,7 @@ namespace MediaTekDocuments.view
             ((System.ComponentModel.ISupportInitialize)(this.pcbReceptionExemplaireRevueImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceptionExemplairesListe)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbReceptionRevueImage)).BeginInit();
-            this.commandesLivres.SuspendLayout();
+            this.tabCommandesLivres.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -312,7 +312,7 @@ namespace MediaTekDocuments.view
             this.tabOngletsApplication.Controls.Add(this.tabDvd);
             this.tabOngletsApplication.Controls.Add(this.tabRevues);
             this.tabOngletsApplication.Controls.Add(this.tabReceptionRevue);
-            this.tabOngletsApplication.Controls.Add(this.commandesLivres);
+            this.tabOngletsApplication.Controls.Add(this.tabCommandesLivres);
             this.tabOngletsApplication.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabOngletsApplication.ItemSize = new System.Drawing.Size(49, 18);
             this.tabOngletsApplication.Location = new System.Drawing.Point(0, 0);
@@ -2407,20 +2407,20 @@ namespace MediaTekDocuments.view
             this.btnReceptionRechercher.UseVisualStyleBackColor = true;
             this.btnReceptionRechercher.Click += new System.EventHandler(this.btnReceptionRechercher_Click);
             // 
-            // commandesLivres
+            // tabCommandesLivres
             // 
-            this.commandesLivres.Controls.Add(this.groupBox4);
-            this.commandesLivres.Controls.Add(this.groupBox3);
-            this.commandesLivres.Controls.Add(this.error);
-            this.commandesLivres.Controls.Add(this.groupBox1);
-            this.commandesLivres.Controls.Add(this.groupBox2);
-            this.commandesLivres.Location = new System.Drawing.Point(4, 22);
-            this.commandesLivres.Name = "commandesLivres";
-            this.commandesLivres.Padding = new System.Windows.Forms.Padding(3);
-            this.commandesLivres.Size = new System.Drawing.Size(875, 847);
-            this.commandesLivres.TabIndex = 5;
-            this.commandesLivres.Text = "Commandes de livres";
-            this.commandesLivres.UseVisualStyleBackColor = true;
+            this.tabCommandesLivres.Controls.Add(this.groupBox4);
+            this.tabCommandesLivres.Controls.Add(this.groupBox3);
+            this.tabCommandesLivres.Controls.Add(this.error);
+            this.tabCommandesLivres.Controls.Add(this.groupBox1);
+            this.tabCommandesLivres.Controls.Add(this.groupBox2);
+            this.tabCommandesLivres.Location = new System.Drawing.Point(4, 22);
+            this.tabCommandesLivres.Name = "tabCommandesLivres";
+            this.tabCommandesLivres.Padding = new System.Windows.Forms.Padding(3);
+            this.tabCommandesLivres.Size = new System.Drawing.Size(875, 847);
+            this.tabCommandesLivres.TabIndex = 5;
+            this.tabCommandesLivres.Text = "Commandes de livres";
+            this.tabCommandesLivres.UseVisualStyleBackColor = true;
             // 
             // groupBox4
             // 
@@ -2954,8 +2954,8 @@ namespace MediaTekDocuments.view
             ((System.ComponentModel.ISupportInitialize)(this.pcbReceptionExemplaireRevueImage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvReceptionExemplairesListe)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbReceptionRevueImage)).EndInit();
-            this.commandesLivres.ResumeLayout(false);
-            this.commandesLivres.PerformLayout();
+            this.tabCommandesLivres.ResumeLayout(false);
+            this.tabCommandesLivres.PerformLayout();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -3151,7 +3151,7 @@ namespace MediaTekDocuments.view
         private System.Windows.Forms.Button ajouterRevue;
         private System.Windows.Forms.NumericUpDown txbRevuesDMAD;
         private System.Windows.Forms.TextBox txbRevuesDateMiseADispo;
-        private System.Windows.Forms.TabPage commandesLivres;
+        private System.Windows.Forms.TabPage tabCommandesLivres;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label error;
         private System.Windows.Forms.Label label61;

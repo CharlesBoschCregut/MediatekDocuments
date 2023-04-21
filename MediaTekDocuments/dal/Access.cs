@@ -5,8 +5,8 @@ using MediaTekDocuments.manager;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using System.Configuration;
-using System.Xml.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace MediaTekDocuments.dal
 {
@@ -505,6 +505,43 @@ namespace MediaTekDocuments.dal
                 Console.WriteLine(ex.Message);
             }
             return false;
+        }
+
+        public string GetUserLogin(string login, string pwd)
+        {
+            string json = JsonConvert.SerializeObject(new Dictionary<string, string>
+            {
+                { "login", login },
+                { "pwd", HashPassword(pwd) }
+            });
+
+            try
+            {
+                List<Dictionary<string, string>> liste = TraitementRecup<Dictionary<string, string>>(GET, "utilisateurs/" + "LOGIN/" + "LOGIN/" + json);
+                if (liste.Count > 0)
+                {
+                    return liste[0]["idservice"];
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return "failed";
+        }
+
+        public static string HashPassword(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    sb.Append(hash[i].ToString("x2"));
+                }
+                return sb.ToString();
+            }
         }
         /// <summary>
         /// Traitement de la récupération du retour de l'api, avec conversion du json en liste pour les select (GET)
