@@ -7,6 +7,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Configuration;
 
 namespace MediaTekDocuments.dal
 {
@@ -45,14 +46,30 @@ namespace MediaTekDocuments.dal
             String authenticationString;
             try
             {
-                authenticationString = "admin:adminpwd";
-                api = ApiRest.GetInstance(uriApi, authenticationString);
+                api = ApiRest.GetInstance(uriApi, GetConnectionLogs());
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Environment.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Récupération de la chaîne de connexion
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        static string GetConnectionLogs()
+        {
+            string username = ConfigurationManager.AppSettings["Username"];
+            string password = ConfigurationManager.AppSettings["Password"];
+
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            {
+                return $"{username}:{password}";
+            }
+            return "";
         }
 
         /// <summary>
