@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Configuration;
+using Serilog;
 
 namespace MediaTekDocuments.dal
 {
@@ -45,11 +46,16 @@ namespace MediaTekDocuments.dal
         {
             try
             {
+                Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.File("logs/log.txt")
+                .CreateLogger();
                 api = ApiRest.GetInstance(uriApi, GetConnectionLogs());
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                Log.Fatal("Acces.cs catch GetConnectionLogs()={0}", GetConnectionLogs());
                 Environment.Exit(0);
             }
         }
@@ -205,6 +211,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerExemplaire catch error={0}", ex.Message);
             }
             return false; 
         }
@@ -220,6 +227,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex) 
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerDocument catch error={0}", ex.Message);
             }
             return false;
         }
@@ -235,6 +243,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerLivreDvd catch error={0}", ex.Message);
             }
             return false;
         }
@@ -286,6 +295,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerLivre catch error={0}", ex.Message);
             }
             return false;
         }
@@ -301,6 +311,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerDocument catch error={0}", ex.Message);
             }
             return false;
         }
@@ -316,6 +327,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerLivre catch error={0}", ex.Message);
             }
             return false;
         }
@@ -330,6 +342,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs PeutSuppr catch error={0}", ex.Message);
             }
             return false;
 
@@ -393,6 +406,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerDvd catch error={0}", ex.Message);
             }
             return false;
         }
@@ -408,6 +422,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerDvd catch error={0}", ex.Message);
             }
             return false;
         }
@@ -423,6 +438,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerRevue catch error={0}", ex.Message);
             }
             return false;
         }
@@ -438,6 +454,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerRevue catch error={0}", ex.Message);
             }
             return false;
         }
@@ -453,6 +470,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerCommande catch error={0}", ex.Message);
             }
             return false;
         }
@@ -468,6 +486,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs CreerCommandeDocument catch error={0}", ex.Message);
             }
             return false;
         }
@@ -483,6 +502,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerCommandeDocument catch error={0}", ex.Message);
             }
             return false;
         }
@@ -498,6 +518,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerCommande catch error={0}", ex.Message);
             }
             return false;
         }
@@ -513,6 +534,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs EditerEtatExemplaire catch error={0}", ex.Message);
             }
             return false;
         }
@@ -536,6 +558,7 @@ namespace MediaTekDocuments.dal
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                Log.Error("Access.cs GetUserLogin catch error={0}", ex.Message);
             }
             return "failed";
         }
@@ -581,10 +604,12 @@ namespace MediaTekDocuments.dal
                 else
                 {
                     Console.WriteLine("code erreur = " + code + " message = " + (String)retour["message"]);
+                    Log.Error("Access.cs TraitementRecup catch code={0} message={1}", code, (String)retour["message"]);
                 }
             }catch(Exception e)
             {
                 Console.WriteLine("Erreur lors de l'accès à l'API : "+e.Message);
+                Log.Fatal("Access.cs TraitementRecup catch error={0}", e.Message);
                 Environment.Exit(0);
             }
             return liste;
