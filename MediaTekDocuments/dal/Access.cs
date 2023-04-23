@@ -19,7 +19,7 @@ namespace MediaTekDocuments.dal
         /// <summary>
         /// adresse de l'API
         /// </summary>
-        private static readonly string uriApi = "http://localhost/rest_mediatekdocuments/";
+        private static readonly string uriApi = ConfigurationManager.AppSettings["Apiurl"];
         /// <summary>
         /// instance unique de la classe
         /// </summary>
@@ -43,7 +43,6 @@ namespace MediaTekDocuments.dal
         /// </summary>
         private Access()
         {
-            String authenticationString;
             try
             {
                 api = ApiRest.GetInstance(uriApi, GetConnectionLogs());
@@ -171,15 +170,9 @@ namespace MediaTekDocuments.dal
 
         public List<CommandeDocument> GetCommande(string id)
         {
-            List<CommandeDocument> Commandes = TraitementRecup<CommandeDocument>(GET, "commande/" + id);
-            if (Commandes.Count > 0)
-            {
-                return Commandes;
-            }
-            else
-            {
-                return null;
-            }
+            List<CommandeDocument> Commandes;
+            Commandes = TraitementRecup<CommandeDocument>(GET, "commande/" + id);
+            return Commandes;
         }
 
 

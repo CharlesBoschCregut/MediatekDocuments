@@ -6,11 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using System.IO;
-using System.Reflection;
-using System.Drawing.Printing;
 using System.Data;
-using System.Linq.Expressions;
-using System.ComponentModel.Design;
 
 namespace MediaTekDocuments.view
 
@@ -25,7 +21,7 @@ namespace MediaTekDocuments.view
         private readonly BindingSource bdgGenres = new BindingSource();
         private readonly BindingSource bdgPublics = new BindingSource();
         private readonly BindingSource bdgRayons = new BindingSource();
-        private string service;
+        private readonly string service;
 
         /// <summary>
         /// Constructeur : création du contrôleur lié à ce formulaire
@@ -451,7 +447,7 @@ namespace MediaTekDocuments.view
         {
             
             string titreColonne = dgvExemplairesLivres.Columns[e.ColumnIndex].HeaderText;
-            List<Exemplaire> sortedList = new List<Exemplaire>();
+            List<Exemplaire> sortedList;
             switch (titreColonne)
             {
                 case "Numero":
@@ -490,13 +486,15 @@ namespace MediaTekDocuments.view
                     string numero = selectedRow.Cells["Numero"].Value.ToString();
                     var exemplaireList = bdgExemplaireLivre.DataSource as List<Exemplaire>;
                     Exemplaire exemplaire = exemplaireList.FirstOrDefault(ex => ex.Numero == int.Parse(numero));
-                    exemplaire.IdEtat = cbxSetEtatLivre.SelectedValue.ToString();
-                    if (controller.EditerEtatExemplaire(exemplaire))
+                    if (exemplaire != null)
                     {
-                        RefreshExemplaireLivre();
+                        exemplaire.IdEtat = cbxSetEtatLivre.SelectedValue.ToString();
+                        if (controller.EditerEtatExemplaire(exemplaire))
+                        {
+                            RefreshExemplaireLivre();
+                        }
                     }
                 }
-
             }
             else
             {
@@ -556,10 +554,6 @@ namespace MediaTekDocuments.view
                 editerDvd.Enabled = false;
                 supprimerDvd.Visible = false;
                 supprimerDvd.Enabled = false;
-                /*groupBox6.Enabled = false;
-                groupBox6.Visible = false;
-                groupBox7.Enabled = false;
-                groupBox7.Visible = false;*/
             }
             RechargerDvd();
         }
@@ -881,10 +875,6 @@ namespace MediaTekDocuments.view
                 editerRevue.Enabled = false;
                 supprimerRevue.Visible = false;
                 supprimerRevue.Enabled = false;
-                /*groupBox6.Enabled = false;
-                groupBox6.Visible = false;
-                groupBox7.Enabled = false;
-                groupBox7.Visible = false;*/
             }
             RechargerRevues();
         }
@@ -1501,19 +1491,36 @@ namespace MediaTekDocuments.view
 
             );
             Livre livre = new Livre(document.Id, document.Titre, document.Image, txbLivresIsbn.Text, txbLivresAuteur.Text, txbLivresCollection.Text, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon);
-            if (controller.EditerLivre(livre))
+            if (!EditerLivre(livre, document))
             {
-                if (controller.EditerDocument(document))
-                {
-                    RechargerLivres();
-                    ToggleEditionLivre(false);
-                }
+                Console.WriteLine("Erreur lors de l'édition d'un livre");
             }
         }
 
         private void annulerLivre_Click(object sender, EventArgs e)
         {
             ToggleEditionLivre(false);
+        }
+
+        private bool EditerLivre(Livre livre, Document document)
+        {
+            if (controller.EditerLivre(livre))
+            {
+                if (controller.EditerDocument(document))
+                {
+                    RechargerLivres();
+                    ToggleEditionLivre(false);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void refreshLivres_Click(object sender, EventArgs e)
@@ -1525,7 +1532,6 @@ namespace MediaTekDocuments.view
         {
             if (status)
             {
-                //annule les changements d'interface
                 grpLivresInfos.BackColor = Color.AliceBlue;
                 cbxEditRayonLivre.Visible = true;
                 cbxEditRayonLivre.Enabled = true;
@@ -1534,8 +1540,6 @@ namespace MediaTekDocuments.view
                 cbxEditPublicLivre.Visible = true;
                 cbxEditPublicLivre.Enabled = true;
 
-                supprimerLivre.Enabled = false;
-                supprimerLivre.Visible = false;
                 validerLivre.Enabled = true;
                 validerLivre.Visible = true;
                 annulerLivre.Enabled = true;
@@ -1624,6 +1628,14 @@ namespace MediaTekDocuments.view
                     {
                         return true;
                     }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
                 }
             }
             return false;
@@ -1710,16 +1722,31 @@ namespace MediaTekDocuments.view
 
             );
             Dvd dvd = new Dvd(document.Id, document.Titre, document.Image, Convert.ToInt32(txbDvdDuree.Text), txbDvdRealisateur.Text, txbDvdSynopsis.Text, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon);
+            if (!EditerDvd(document, dvd))
+            {
+                Console.WriteLine("Erreur lors de l'édition d'un dvd");
+            }
+        }
+        public bool EditerDvd(Document document, Dvd dvd)
+        {
             if (controller.EditerDvd(dvd))
             {
                 if (controller.EditerDocument(document))
                 {
                     RechargerDvd();
                     ToggleEditionDvd(false);
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
+            else
+            {
+                return false;
+            }   
         }
-
         public bool AjouterDvd(List<string> data)
         {
             Document document = new Document(data[7], data[0], "leimage", data[1], "LeGenre", data[2], "Lepublic", data[3], "Lerayon");
@@ -1732,10 +1759,17 @@ namespace MediaTekDocuments.view
                     {
                         return true;
                     }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                return true;
+                else
+                {
+                    return false;
+                }
             }
-            return true;
+            return false;
         }
 
         private void ToggleEditionDvd(bool status)
@@ -1750,8 +1784,6 @@ namespace MediaTekDocuments.view
                 cbxEditPublicDvd.Visible = true;
                 cbxEditPublicDvd.Enabled = true;
 
-                supprimerDvd.Enabled = false;
-                supprimerDvd.Visible = false;
                 validerDvd.Enabled = true;
                 validerDvd.Visible = true;
                 annulerDvd.Enabled = true;
@@ -1800,8 +1832,6 @@ namespace MediaTekDocuments.view
                 cbxEditPublicDvd.Visible = false;
                 cbxEditPublicDvd.Enabled = false;
 
-                supprimerDvd.Enabled = true;
-                supprimerDvd.Visible = true;
                 validerDvd.Enabled = false;
                 validerDvd.Visible = false;
                 annulerDvd.Enabled = false;
@@ -1858,13 +1888,31 @@ namespace MediaTekDocuments.view
 
             );
             Revue revue = new Revue(document.Id, document.Titre, document.Image, document.IdGenre, document.Genre, document.IdPublic, document.Public, document.IdRayon, document.Rayon, txbRevuesPeriodicite.Text, Convert.ToInt32(txbRevuesDMAD.Value));
+
+            if (!EditerRevue(revue, document))
+            {
+                Console.WriteLine("Erreur lors de l'édition d'une revue");
+            }
+        }
+        
+        private bool EditerRevue(Revue revue, Document document)
+        {
             if (controller.EditerRevue(revue))
             {
                 if (controller.EditerDocument(document))
                 {
                     RechargerRevues();
                     ToggleEditionRevue(false);
+                    return true;
                 }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -1914,8 +1962,12 @@ namespace MediaTekDocuments.view
             {
                 if (controller.CreerRevue(revue))
                 {
-                    return true;
                     RechargerRevues();
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
             return true;
@@ -1945,8 +1997,6 @@ namespace MediaTekDocuments.view
                 txbRevuesDMAD.Visible = true;
                 txbRevuesDMAD.Enabled = true;
 
-                supprimerRevue.Enabled = false;
-                supprimerRevue.Visible = false;
                 validerRevue.Enabled = true;
                 validerRevue.Visible = true;
                 annulerRevue.Enabled = true;
@@ -1993,8 +2043,6 @@ namespace MediaTekDocuments.view
                 txbRevuesDMAD.Visible = false;
                 txbRevuesDMAD.Enabled = false;
 
-                supprimerRevue.Enabled = true;
-                supprimerRevue.Visible = true;
                 validerRevue.Enabled = false;
                 validerRevue.Visible = false;
                 annulerRevue.Enabled = false;
@@ -2027,7 +2075,7 @@ namespace MediaTekDocuments.view
             List<CommandeDocument> commandes = controller.GetCommande(id);
             if (livre != null)
             {
-                if (commandes != null)
+                if (commandes.Count > 0)
                 {
                     RemplirInfosLivre(livre);
                     RemplirTableauLivre(commandes);
@@ -2147,16 +2195,10 @@ namespace MediaTekDocuments.view
             {
                 Commande commande = new Commande(controller.GenererId("commande"), DateTime.Now, (double)txbCommandeMontantLivre.Value);
                 CommandeDocument commandeDocument = new CommandeDocument(commande.Id, commande.DateCommande, commande.Montant, (int)txbCommandeNbLivre.Value, txbSelectedLivre.Text, "00001", "En cours");
-
-                if (controller.CreerCommande(commande))
+               
+                if (!AjouterCommande(commande, commandeDocument))
                 {
-                    if (controller.CreerCommandeDocument(commandeDocument))
-                    {
-                        error.ForeColor = Color.Blue;
-                        error.Font = new Font("Arial", 12);
-                        error.Text = "Commande enregistrée";
-                        RechargerCommandeLivre(controller.GetLivre(commandeDocument.IdLivreDvd));
-                    }
+                    Console.WriteLine("Erreur lors de l'édition de l'ajout d'une commande");
                 }
             }
             else
@@ -2164,6 +2206,29 @@ namespace MediaTekDocuments.view
                 error.ForeColor = Color.Red;
                 error.Font = new Font("Arial", 12);
                 error.Text = "Vous devez sélectionner un livre";
+            }
+        }
+
+        private bool AjouterCommande(Commande commande, CommandeDocument commandeDocument)
+        {
+            if (controller.CreerCommande(commande))
+            {
+                if (controller.CreerCommandeDocument(commandeDocument))
+                {
+                    error.ForeColor = Color.Blue;
+                    error.Font = new Font("Arial", 12);
+                    error.Text = "Commande enregistrée";
+                    RechargerCommandeLivre(controller.GetLivre(commandeDocument.IdLivreDvd));
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
 

@@ -18,6 +18,7 @@ namespace MediaTekDocuments.view
         {
             InitializeComponent();
             this.controller = new FrmMediatekController();
+            this.view = new FrmMediatek("111");
 
             this.Genres.DataSource = data[0].DataSource;
             this.Publics.DataSource = data[1].DataSource;
@@ -45,8 +46,7 @@ namespace MediaTekDocuments.view
 
         private void AjouterDvd_Click(object sender, EventArgs e)
         {
-            var valid = ValidateForm();
-            if (valid.success)
+            if (ValidateForm().success)
             {
                 List<string> list = new List<string>
                 {
@@ -66,7 +66,7 @@ namespace MediaTekDocuments.view
             }
             else
             {
-                ErrorMsg.Text = "/!\\ " + valid.message;
+                ErrorMsg.Text = "/!\\ " + ValidateForm().message;
                 ErrorMsg.ForeColor = Color.Red;
                 ErrorMsg.Font = new Font("Arial", 12);
             }
