@@ -1,9 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.32413.511
+VisualStudioVersion = 16.0.33529.622
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaTekDocuments", "MediaTekDocuments\MediaTekDocuments.csproj", "{75DE903D-6147-4E14-BBE0-FA20CD1F9840}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaTekDocumentsTests", "MediaTekDocumentsTests\MediaTekDocumentsTests.csproj", "{457A253B-27D6-4192-A684-A5466594EA6B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpecFlowMediatekDocuments", "SpecFlowMediatekDocuments\SpecFlowMediatekDocuments.csproj", "{638CB8D6-9F92-48D4-BBED-7061A40BCCA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{75DE903D-6147-4E14-BBE0-FA20CD1F9840} = {75DE903D-6147-4E14-BBE0-FA20CD1F9840}
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Mediatek86 Setup", "Mediatek86 Setup\Mediatek86 Setup.vdproj", "{4C56132D-A32B-4FD9-B65C-3C63A317AABE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +24,18 @@ Global
 		{75DE903D-6147-4E14-BBE0-FA20CD1F9840}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75DE903D-6147-4E14-BBE0-FA20CD1F9840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75DE903D-6147-4E14-BBE0-FA20CD1F9840}.Release|Any CPU.Build.0 = Release|Any CPU
+		{457A253B-27D6-4192-A684-A5466594EA6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{457A253B-27D6-4192-A684-A5466594EA6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{457A253B-27D6-4192-A684-A5466594EA6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{457A253B-27D6-4192-A684-A5466594EA6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{638CB8D6-9F92-48D4-BBED-7061A40BCCA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{638CB8D6-9F92-48D4-BBED-7061A40BCCA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{638CB8D6-9F92-48D4-BBED-7061A40BCCA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{638CB8D6-9F92-48D4-BBED-7061A40BCCA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C56132D-A32B-4FD9-B65C-3C63A317AABE}.Debug|Any CPU.ActiveCfg = Debug
+		{4C56132D-A32B-4FD9-B65C-3C63A317AABE}.Debug|Any CPU.Build.0 = Debug
+		{4C56132D-A32B-4FD9-B65C-3C63A317AABE}.Release|Any CPU.ActiveCfg = Release
+		{4C56132D-A32B-4FD9-B65C-3C63A317AABE}.Release|Any CPU.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

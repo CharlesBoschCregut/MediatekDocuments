@@ -65,7 +65,7 @@ namespace MediaTekDocuments.dal
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        static string GetConnectionLogs()
+        private static string GetConnectionLogs()
         {
             string username = ConfigurationManager.AppSettings["Username"];
             string password = ConfigurationManager.AppSettings["Password"];

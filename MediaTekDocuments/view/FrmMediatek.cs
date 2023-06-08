@@ -26,7 +26,7 @@ namespace MediaTekDocuments.view
         /// <summary>
         /// Constructeur : création du contrôleur lié à ce formulaire
         /// </summary>
-        internal FrmMediatek(string service)
+        public FrmMediatek(string service)
         {
             this.service = service;
             InitializeComponent();
@@ -152,12 +152,14 @@ namespace MediaTekDocuments.view
         {
             if (!txbLivresTitreRecherche.Text.Equals(""))
             {
+                Console.WriteLine(txbLivresTitreRecherche.Text);
                 cbxLivresGenres.SelectedIndex = -1;
                 cbxLivresRayons.SelectedIndex = -1;
                 cbxLivresPublics.SelectedIndex = -1;
                 txbLivresNumRecherche.Text = "";
                 List<Livre> lesLivresParTitre;
                 lesLivresParTitre = lesLivres.FindAll(x => x.Titre.ToLower().Contains(txbLivresTitreRecherche.Text.ToLower()));
+                Console.WriteLine(lesLivresParTitre.Count);
                 RemplirLivresListe(lesLivresParTitre);
             }
             else
@@ -1580,39 +1582,41 @@ namespace MediaTekDocuments.view
             } 
             else 
             {
-                //annule les changements d'interface
-                grpLivresInfos.BackColor = Color.White;
-                cbxEditRayonLivre.Visible = false;
-                cbxEditRayonLivre.Enabled = false;
-                cbxEditGenreLivre.Visible = false;
-                cbxEditGenreLivre.Enabled = false;
-                cbxEditPublicLivre.Visible = false;
-                cbxEditPublicLivre.Enabled = false;
+                if (cbxEditRayonLivre.Visible)
+                {
+                    //annule les changements d'interface
+                    grpLivresInfos.BackColor = Color.White;
+                    cbxEditRayonLivre.Visible = false;
+                    cbxEditRayonLivre.Enabled = false;
+                    cbxEditGenreLivre.Visible = false;
+                    cbxEditGenreLivre.Enabled = false;
+                    cbxEditPublicLivre.Visible = false;
+                    cbxEditPublicLivre.Enabled = false;
 
-                validerLivre.Enabled = false;
-                validerLivre.Visible = false;
-                annulerLivre.Enabled = false;
-                annulerLivre.Visible = false;
+                    validerLivre.Enabled = false;
+                    validerLivre.Visible = false;
+                    annulerLivre.Enabled = false;
+                    annulerLivre.Visible = false;
 
-                txbLivresTitre.BackColor = txbLivresNumero.BackColor;
-                txbLivresTitre.ReadOnly = true;
+                    txbLivresTitre.BackColor = txbLivresNumero.BackColor;
+                    txbLivresTitre.ReadOnly = true;
 
-                txbLivresAuteur.BackColor = txbLivresNumero.BackColor;
-                txbLivresAuteur.ReadOnly = true;
+                    txbLivresAuteur.BackColor = txbLivresNumero.BackColor;
+                    txbLivresAuteur.ReadOnly = true;
 
-                txbLivresCollection.BackColor = txbLivresNumero.BackColor;
-                txbLivresCollection.ReadOnly = true;
+                    txbLivresCollection.BackColor = txbLivresNumero.BackColor;
+                    txbLivresCollection.ReadOnly = true;
 
-                txbLivresImage.BackColor = txbLivresNumero.BackColor;
-                txbLivresImage.ReadOnly = true;
+                    txbLivresImage.BackColor = txbLivresNumero.BackColor;
+                    txbLivresImage.ReadOnly = true;
 
-                txbLivresIsbn.BackColor = txbLivresNumero.BackColor;
-                txbLivresIsbn.ReadOnly = true;
+                    txbLivresIsbn.BackColor = txbLivresNumero.BackColor;
+                    txbLivresIsbn.ReadOnly = true;
 
-                VideLivresZones();
-                Livre livre = (Livre)bdgLivresListe.List[bdgLivresListe.Position];
-                AfficheLivresInfos(livre);
-
+                    VideLivresZones();
+                    Livre livre = (Livre)bdgLivresListe.List[bdgLivresListe.Position];
+                    AfficheLivresInfos(livre);
+                }
             }
         }
 
